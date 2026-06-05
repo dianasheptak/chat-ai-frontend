@@ -7,7 +7,7 @@ export const useThemeStore: StoreDefinition = defineStore('theme', {
         theme: 'dark' as Theme
     }),
     getters: {
-        isDark: (state): boolean => state.theme === 'dark'
+        isDark: (state: any): boolean => state.theme === 'dark'
     },
     actions: {
         applyTheme() {

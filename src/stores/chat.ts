@@ -46,7 +46,28 @@ export const useChatStore: StoreDefinition = defineStore('chat', () => {
         }
     }
 
+    const sendMessage = async (message: string) => {
+        if (!message || !userStore.userId) { return;}
+
+        messages.value.push({role: 'user', content: message})
+
+        isLoading.value = true;
+
+        try {
+            const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/chat`, {
+                message,
+                userId: userStore.userId
+            })    
+            messages.value.push({role: 'ai', content: data.reply})    
+        } catch (e) {
+            console.log(e);
+            messages.value.push({role: 'ai', content: 'Cannot proccess current request...'})    
+        } finally {
+            isLoading.value = false;
+        }
+    }
+
     return {
-        loadChatHistory, messages, isLoading
+        loadChatHistory, sendMessage, messages, isLoading
     }
 })
