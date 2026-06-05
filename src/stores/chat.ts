@@ -1,5 +1,5 @@
 import { defineStore, type StoreDefinition } from "pinia";
-import {ref, computed } from "vue";
+import {ref } from "vue";
 import axios from "axios";
 import { useUserStore } from "./user";
 
