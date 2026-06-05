@@ -1,25 +1,50 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { reactive, ref } from 'vue';
+import { useUserStore } from '../stores/user';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
 
-const isLoggedIn = ref(false)
+
+const userStore = useUserStore();
+const router = useRouter();
+
+const isLoggedIn = ref(false);
+const loading = ref(false);
+const error = ref('');
 
 const form = reactive({
   name: '',
   email: '',
 })
 
-const isValid = computed(
-  () => form.name.trim().length > 0 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email),
-)
 
-const buttonLabel = computed(() => (isLoggedIn.value ? 'Start Chatting' : 'Log in'))
+const createUser =  async() => {
+    if (!form.name || !form.email) {
+        error.value = 'Name and email are required!'
+    }
 
-function handleSubmit() {
-  if (isLoggedIn.value) {
-    return
-  }
-  if (!isValid.value) return
-  isLoggedIn.value = true
+    loading.value = true;
+    error.value = "";
+
+    try {
+        const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/register-user`, {
+            name: form.name,
+            email: form.email
+        })
+
+        userStore.setUser({
+            userId: data.userId,
+            name: data.name
+        })
+
+        router.push('/chat')
+
+    } catch (e) {
+        console.log(e);
+        error.value = 'Something went wrong...'
+    } finally {
+        loading.value = false;
+    }
 }
 </script>
 
@@ -116,9 +141,8 @@ function handleSubmit() {
             }}
           </p>
 
-          <form class="mt-8 space-y-5" @submit.prevent="handleSubmit">
-            <div>
-              <label for="name" class="mb-1.5 block text-sm font-medium text-slate-300">
+            <div class="mt-8 space-y-5">
+              <label for="name" class="my-1.5 block text-sm font-medium text-slate-300">
                 Name
               </label>
               <input
@@ -133,7 +157,7 @@ function handleSubmit() {
             </div>
 
             <div>
-              <label for="email" class="mb-1.5 block text-sm font-medium text-slate-300">
+              <label for="email" class="my-1.5 block text-sm font-medium text-slate-300">
                 Email
               </label>
               <input
@@ -148,25 +172,15 @@ function handleSubmit() {
             </div>
 
             <button
-              type="submit"
-              :disabled="!isLoggedIn && !isValid"
-              class="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 transition hover:bg-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:ring-offset-2 focus:ring-offset-slate-950 disabled:cursor-not-allowed disabled:opacity-40"
+                @click="createUser"
+                class="w-full p-2 bg-blue-500 rounded-lg mt-5"
+                :disabled="loading"
             >
-              {{ buttonLabel }}
-              <span aria-hidden="true">→</span>
+                {{ loading ? 'Logging in...' : 'Start Chat' }}
             </button>
-          </form>
 
-          <p v-if="isLoggedIn" class="mt-4 text-center text-xs text-slate-500">
-            Not you?
-            <button
-              type="button"
-              class="font-medium text-indigo-400 hover:text-indigo-300"
-              @click="isLoggedIn = false"
-            >
-              Log out
-            </button>
-          </p>
+            <p v-if="error" class="mt-2 text-xs text-white text-center">{{ error }}</p>
+
         </div>
       </section>
     </div>

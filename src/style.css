@@ -1,1 +1,15 @@
 @import 'tailwindcss';
+
+/* Enable class-based dark mode (toggled via the `dark` class on <html>) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Light theme = warm white / vanilla vibes; dark theme = slate */
+:root {
+  color-scheme: light;
+  background-color: #faf7f0; /* vanilla */
+}
+
+:root.dark {
+  color-scheme: dark;
+  background-color: #020617; /* slate-950 */
+}
