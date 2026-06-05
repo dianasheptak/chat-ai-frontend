@@ -21,5 +21,5 @@ export const useThemeStore: StoreDefinition = defineStore('theme', {
             this.setTheme(this.theme === 'dark' ? 'light' : 'dark');
         }
     },
-    persist: true // remember the chosen theme across reloads
+    persist: true // remember the chosen theme 
 })

@@ -1,0 +1,52 @@
+import { defineStore, type StoreDefinition } from "pinia";
+import {ref, computed } from "vue";
+import axios from "axios";
+import { useUserStore } from "./user";
+
+interface ChatMessage {
+    message: string;
+    reply: string;
+}
+
+interface FormattedMessage {
+    role: 'user' | 'ai';
+    content: string;
+}
+
+export const useChatStore: StoreDefinition = defineStore('chat', () => {
+    const messages = ref<{role: string; content: string}[]>([]);
+    const isLoading = ref(false);
+
+    const userStore = useUserStore();
+
+    const loadChatHistory = async () => {
+        if (!userStore.userId) { return;}
+
+        try {
+            const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/get-messages`, {
+                userId: userStore.userId
+            })
+
+            messages.value = data.messages
+            .flatMap((msg: ChatMessage): FormattedMessage[] => [
+                {
+                    role: 'user',
+                    content: msg.message
+                },
+                {
+                    role: 'ai',
+                    content: msg.reply
+                }
+            ])
+            .filter((msg: FormattedMessage) => msg.content)
+        } catch(e) {
+            console.error(e)
+        } finally {
+            isLoading.value = false;
+        }
+    }
+
+    return {
+        loadChatHistory, messages, isLoading
+    }
+})
