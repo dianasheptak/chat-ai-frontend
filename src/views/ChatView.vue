@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, nextTick, ref, watch } from 'vue';
 import Header from '../components/Header.vue';
+import Sidebar from '../components/Sidebar.vue';
 import { useChatStore } from '../stores/chat.ts';
 import { useUserStore } from '../stores/user.ts';
 import { useRouter } from 'vue-router';
@@ -12,6 +13,7 @@ const router = useRouter();
 
 const newMessage = ref('');
 const chatRef = ref<HTMLElement | null>(null);
+const sidebarOpen = ref(false);
 
 const scrollToBottom = () => {
     nextTick(() => {
@@ -54,15 +56,18 @@ watch(
 )
 
 onMounted(() => {
-    chatStore.loadChatHistory().then(() => scrollToBottom())
+    chatStore.init().then(() => scrollToBottom())
 })
 </script>
 
 <template>
   <div class="flex min-h-screen flex-col bg-[#faf7f0] text-slate-800 dark:bg-slate-950 dark:text-slate-100">
-    <Header />
+    <Header @toggle-sidebar="sidebarOpen = !sidebarOpen" />
 
-    <main class="flex min-h-0 flex-1 justify-center overflow-hidden p-4 pb-32 sm:p-6 sm:pb-32">
+    <div class="flex min-h-0 flex-1">
+      <Sidebar v-model:open="sidebarOpen" />
+
+      <main class="flex min-h-0 flex-1 justify-center overflow-hidden p-4 pb-32 sm:p-6 sm:pb-32">
       <div class="sparkle-border flex w-full max-w-3xl rounded-2xl p-[2px]">
         <div
           ref="chatRef"
@@ -103,10 +108,11 @@ onMounted(() => {
           </div>
         </div>
       </div>
-    </main>
+      </main>
+    </div>
 
     <footer
-      class="fixed inset-x-0 bottom-0 bg-gradient-to-t from-[#faf7f0] via-[#faf7f0] to-transparent px-4 pb-6 pt-10 dark:from-slate-950 dark:via-slate-950"
+      class="fixed inset-x-0 bottom-0 bg-gradient-to-t from-[#faf7f0] via-[#faf7f0] to-transparent px-4 pb-6 pt-10 sm:left-72 dark:from-slate-950 dark:via-slate-950"
     >
       <div class="relative mx-auto w-full max-w-3xl">
         <div

@@ -3,6 +3,8 @@ import { useThemeStore } from '../stores/theme';
 import { useUserStore } from '../stores/user';
 import { useRouter } from 'vue-router';
 
+defineEmits<{ (e: 'toggle-sidebar'): void }>();
+
 const themeStore = useThemeStore();
 const userStore = useUserStore();
 
@@ -19,6 +21,14 @@ const logout = () => {
     class="sticky top-0 z-10 flex items-center justify-between border-b border-black/5 bg-[#faf7f0]/80 px-4 py-3 backdrop-blur sm:px-6 dark:border-white/5 dark:bg-slate-950/80"
   >
     <div class="flex items-center gap-2">
+      <button
+        type="button"
+        @click="$emit('toggle-sidebar')"
+        class="grid h-9 w-9 place-items-center rounded-lg border border-black/10 bg-white/60 text-slate-700 transition hover:bg-white sm:hidden dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
+        aria-label="Toggle chat list"
+      >
+        ☰
+      </button>
       <span
         class="grid h-9 w-9 place-items-center rounded-lg bg-indigo-500 text-lg font-bold text-white"
       >
